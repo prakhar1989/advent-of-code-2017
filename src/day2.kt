@@ -14,8 +14,7 @@ fun main(args: Array<String>) {
 }
 
 fun findDivisor(xs: List<Int>): Int {
-    return xs.map { xs.map { ys -> Pair(it, ys) } }
-            .flatten()
+    return allPairs(xs)
             .filter { it.first != it.second }
             .first { it.first % it.second == 0 }
             .run { this.first / this.second }
