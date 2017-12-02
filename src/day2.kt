@@ -7,13 +7,22 @@ fun main(args: Array<String>) {
             .map { it.split("\t") .map { it.toInt() } }
 
     val part1 = numbers.map { it.max()!! - it.min()!! }.sum()
-    val part2 = numbers.map { findScore(it) }.sum()
+    val part2 = numbers.map { findDivisor(it) }.sum()
 
     assertEquals(part1, 37923)
     assertEquals(part2, 263)
 }
 
-fun findScore(xs: List<Int>): Int {
+fun findDivisor(xs: List<Int>): Int {
+    return xs.map { xs.map { ys -> Pair(it, ys) } }
+            .flatten()
+            .filter { it.first != it.second }
+            .first { it.first % it.second == 0 }
+            .run { this.first / this.second }
+}
+
+// imperative approach
+fun findDivisorImp(xs: List<Int>): Int {
     for (i in 0 until xs.size) {
         for (j in i+1 until xs.size) {
             val a = xs[i]
