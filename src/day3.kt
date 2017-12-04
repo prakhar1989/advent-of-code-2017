@@ -16,6 +16,7 @@ fun main(args: Array<String>) {
 private fun part2(input: Int): Int {
     val grid = HashMap<Pair<Int, Int>, Int>()
     grid[Pair(0, 0)] = 1
+
     for (s in 1 until 300) {
         // up
         for (y in -(s-1)..s) {
@@ -42,7 +43,7 @@ private fun part2(input: Int): Int {
         }
 
         // right
-        for (x in ((-s+1)..s)) {
+        for (x in -(s-1)..s) {
             grid[Pair(x, -s)] = getNeighborsSum(grid, x, -s)
             if (grid[Pair(x, -s)]!! > input) {
                 return grid[Pair(x, -s)]!!
