@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
     assertEquals(part2, 263)
 }
 
-fun findDivisor(xs: List<Int>): Int {
+private fun findDivisor(xs: List<Int>): Int {
     return allPairs(xs)
             .filter { it.first != it.second }
             .first { it.first % it.second == 0 }
@@ -21,7 +21,7 @@ fun findDivisor(xs: List<Int>): Int {
 }
 
 // imperative approach
-fun findDivisorImp(xs: List<Int>): Int {
+private fun findDivisorImp(xs: List<Int>): Int {
     for (i in 0 until xs.size) {
         for (j in i+1 until xs.size) {
             val a = xs[i]

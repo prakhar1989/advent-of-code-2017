@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
     assertEquals(getSumFunctionalV2(input, input.length, input.length/2), 1232) // part 2
 }
 
-fun getSum(s: String, jump: Int = 1): Int {
+private fun getSum(s: String, jump: Int = 1): Int {
     var total = 0
     val n = s.length
     for (i in s.indices) {
@@ -29,7 +29,7 @@ fun getSum(s: String, jump: Int = 1): Int {
     return total
 }
 
-fun getSumFunctional(s: String, jump: Int = 1): Int {
+private fun getSumFunctional(s: String, jump: Int = 1): Int {
     val n = s.length
     return (0 until n)
             .filter { s[it] == s[(it + jump) % n] }
@@ -37,7 +37,7 @@ fun getSumFunctional(s: String, jump: Int = 1): Int {
             .sum()
 }
 
-fun getSumFunctionalV2(s: String, n: Int, jump: Int = 1): Int {
+private fun getSumFunctionalV2(s: String, n: Int, jump: Int = 1): Int {
     return s.filterIndexed {i, c -> c == s[(i + jump) % n]}
             .map { it.toDigit() }
             .sum()
