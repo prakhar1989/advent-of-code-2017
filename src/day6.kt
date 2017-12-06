@@ -7,34 +7,22 @@ fun main(args: Array<String>) {
             .map{ it.toInt() }
             .toMutableList()
 
-    assertEquals(part1(input), 4074)
-    assertEquals(part2(input), 2793)
+    assertEquals(4074, solution(input).first)  // part 1
+    assertEquals(2793, solution(input).second) // part 2
 }
 
-private fun part2(input: MutableList<Int>): Int {
+private fun solution(input: MutableList<Int>): Pair<Int, Int> {
     val seen = hashSetOf<List<Int>>()
-    val seenWhen = hashMapOf<List<Int>, Int>()
+    val seenAtStep = hashMapOf<List<Int>, Int>()
     var step = 0
     while (input !in seen) {
         seen.add(input.toList())
-        seenWhen[input.toList()] = step
+        seenAtStep[input.toList()] = step
         balanceInput(input)
         step += 1
     }
-    return step - seenWhen[input]!!
+    return Pair(step, step - seenAtStep[input]!!)
 }
-
-private fun part1(input: MutableList<Int>): Int {
-    val seen = hashSetOf<List<Int>>()
-    var step = 0
-    while (input !in seen) {
-        seen.add(input.toList())
-        balanceInput(input)
-        step += 1
-    }
-    return step
-}
-
 private fun balanceInput(input: MutableList<Int>) {
     var (m, maxi) = input.withIndex().maxBy { it.value }!!
     input[m] = 0
