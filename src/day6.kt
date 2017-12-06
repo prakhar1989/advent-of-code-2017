@@ -14,14 +14,12 @@ fun main(args: Array<String>) {
 private fun solution(input: MutableList<Int>): Pair<Int, Int> {
     val seen = hashSetOf<List<Int>>()
     val seenAtStep = hashMapOf<List<Int>, Int>()
-    var step = 0
     while (input !in seen) {
         seen.add(input.toList())
-        seenAtStep[input.toList()] = step
+        seenAtStep[input.toList()] = seen.size
         balanceInput(input)
-        step += 1
     }
-    return Pair(step, step - seenAtStep[input]!!)
+    return Pair(seen.size, seen.size + 1 - seenAtStep[input]!!)
 }
 
 private fun balanceInput(input: MutableList<Int>) {

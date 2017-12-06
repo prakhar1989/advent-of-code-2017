@@ -14,8 +14,7 @@ fun main(args: Array<String>) {
 }
 
 private fun part2(input: Int): Int {
-    val grid = HashMap<Pair<Int, Int>, Int>()
-    grid[Pair(0, 0)] = 1
+    val grid = hashMapOf(Pair(0, 0) to 1)
 
     for (s in 1 until 300) {
         // up
