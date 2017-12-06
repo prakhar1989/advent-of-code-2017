@@ -23,6 +23,7 @@ private fun solution(input: MutableList<Int>): Pair<Int, Int> {
     }
     return Pair(step, step - seenAtStep[input]!!)
 }
+
 private fun balanceInput(input: MutableList<Int>) {
     var (m, maxi) = input.withIndex().maxBy { it.value }!!
     input[m] = 0

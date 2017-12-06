@@ -2,32 +2,19 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day5.txt").readLines().map { it.toInt() }.toIntArray()
-    assertEquals(396086, part1(input.copyOf()))
-    assertEquals(28675390, part2(input.copyOf()))
+    val input = File("./input/day5.txt").readLines().map { it.toInt() }
+    assertEquals(396086, solution(input.toMutableList()))
+    assertEquals(28675390, solution(input.toMutableList(), false))
 }
 
-private fun part2(input: IntArray): Int {
+private fun solution(input: MutableList<Int>, part1: Boolean = true): Int {
     var currPos = 0
-    var newCurrPos: Int
     var step = 0
     while (currPos < input.size) {
-        newCurrPos = currPos + input[currPos]
-        input[currPos] = input[currPos] + if (input[currPos] >= 3) -1 else 1
+        val newCurrPos = currPos + input[currPos]
+        val incr = if (part1) 1 else if (input[currPos] >= 3) -1 else 1
+        input[currPos] += incr
         currPos = newCurrPos
-        step += 1
-    }
-    return step
-}
-
-private fun part1(input: IntArray): Int {
-    var currPos = 0
-    var oldCurrPos = 0
-    var step = 0
-    while (currPos < input.size) {
-        oldCurrPos = currPos
-        currPos += input[currPos]
-        input[oldCurrPos] += 1
         step += 1
     }
     return step
