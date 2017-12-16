@@ -1,37 +1,33 @@
 import java.io.File
-import kotlin.math.abs
-import kotlin.math.min
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day13.txt").readLines().map {
-                val parts = it.split(": ").map{it.toInt()}
-                Pair(parts[0], parts[1])
-            }
-    val lastScanPos = input.map { it.first }.max()!!
-    val firewall = IntArray(lastScanPos + 1)
-    input.forEach { firewall[it.first] = it.second }
-    assertEquals(1588, part1(firewall, lastScanPos))
-}
+    val input = File("./input/day13.txt").readLines()
+    val wall = hashMapOf<Int, Int>()
 
-private fun part1(firewall: IntArray, lastScanPos: Int): Int {
-    var runningScore = 0
-
-    for (t in 0..lastScanPos) {
-        for (j in firewall.indices) {
-            if (firewall[j] > 0) {
-                val index = indexAtT(t, firewall[j])
-                if (index == 0 && j == t) {
-                    runningScore += (firewall[j] * t)
-                }
-            }
-        }
+    fun isScanPosAtHead(depth: Int, range: Int): Boolean {
+        return (depth % (2 * range - 2)) == 0
     }
-    return runningScore
-}
 
-private fun indexAtT(t: Int, range: Int): Int {
-    val k = 2* range - 2
-    return min(t % k, abs(t - k))
+    input.forEach {
+        val parts = it.split(":")
+        val depth = parts[0].trim().toInt()
+        val range = parts[1].trim().toInt()
+        wall[depth] = range
+    }
+
+    fun hasHitWall(delay: Int): Boolean {
+        return wall.keys.any { isScanPosAtHead(it+delay, wall[it]!!) }
+    }
+
+    val severity = wall.entries
+            .filter { isScanPosAtHead(it.key, it.value) }
+            .map { it.key * it.value }
+            .sum()
+
+    val delay = (0..Int.MAX_VALUE).takeWhile { hasHitWall(it) }.last().inc()
+
+    assertEquals(severity, 1588)
+    assertEquals(delay, 3865118)
 }
 
