@@ -3,21 +3,22 @@ import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
     val input = File("./input/day13.txt").readLines()
+
     val wall = hashMapOf<Int, Int>()
+    input.forEach {
+        val parts = it.split(":").map { it.trim().toInt() }
+        val (depth, range) = parts
+        wall[depth] = range
+    }
 
     fun isScanPosAtHead(depth: Int, range: Int): Boolean {
         return (depth % (2 * range - 2)) == 0
     }
 
-    input.forEach {
-        val parts = it.split(":")
-        val depth = parts[0].trim().toInt()
-        val range = parts[1].trim().toInt()
-        wall[depth] = range
-    }
-
     fun hasHitWall(delay: Int): Boolean {
-        return wall.keys.any { isScanPosAtHead(it+delay, wall[it]!!) }
+        return wall.entries.any {
+            isScanPosAtHead(delay + it.key, it.value)
+        }
     }
 
     val severity = wall.entries
@@ -27,7 +28,6 @@ fun main(args: Array<String>) {
 
     val delay = (0..Int.MAX_VALUE).takeWhile { hasHitWall(it) }.last().inc()
 
-    assertEquals(severity, 1588)
-    assertEquals(delay, 3865118)
+    assertEquals(1588, severity)
+    assertEquals(3865118, delay)
 }
-
