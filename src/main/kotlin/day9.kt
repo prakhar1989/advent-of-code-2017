@@ -2,7 +2,7 @@ import java.io.File
 import java.util.*
 
 fun main(args: Array<String>) {
-    val input = File("./input/day9.txt").readText()
+    val input = File("input/day9.txt").readText()
     println(getScore(input))
 }
 

@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val lines = File("./input/day4.txt").readLines()
+    val lines = File("input/day4.txt").readLines()
 
     val part1 = lines.filter{ hasDuplicates(it) }.count()
     assertEquals(part1, 451)

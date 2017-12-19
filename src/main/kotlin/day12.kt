@@ -1,7 +1,7 @@
 import java.io.File
 
 fun main(args: Array<String>) {
-    val input = File("./input/day12.txt").readLines()
+    val input = File("input/day12.txt").readLines()
     val graph = hashMapOf<String, List<String>>()
 
     input.forEach {

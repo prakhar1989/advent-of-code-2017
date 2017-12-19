@@ -1,6 +1,11 @@
+import kotlinx.coroutines.experimental.TimeoutCancellationException
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withTimeout
 import java.io.File
-import java.util.*
-import kotlin.collections.HashMap
+import kotlin.test.assertEquals
 
 enum class Operation { SET, ADD, MUL, MOD, SEND, RECEIVE, JUMP }
 
@@ -25,12 +30,15 @@ private fun toCommand(s: String): Command {
     }
 }
 
-private fun VM(
+// part 2
+private suspend fun VM(
+        id: Long,
         commands: List<Command>,
-        memory: HashMap<String, Long>,
-        inboundQueue: ArrayDeque<Long>?,
-        outboundQueue: ArrayDeque<Long>?
+        inbound: Channel<Long>,
+        outbound: Channel<Long>
 ): Long {
+    val memory = hashMapOf("p" to id)
+
     fun read(o: String): Long {
         return try {
             o.toLong()
@@ -39,69 +47,48 @@ private fun VM(
         }
     }
 
-    var lastFrequencyHeard = 0L
-    var pc = 0
-    loop@ while (pc < commands.size && pc >= 0) {
-        val c = commands[pc]
+    var programCounter = 0
+    var sentMessages = 0L
+
+    loop@ while (programCounter < commands.size && programCounter >= 0) {
+        val c = commands[programCounter]
         val r = c.register
         when (c.op) {
             Operation.SET -> memory[r] = read(c.operand!!)
             Operation.ADD -> memory[r] = (memory[r] ?:0) + read(c.operand!!)
             Operation.MUL -> memory[r] = (memory[r] ?:0) * read(c.operand!!)
             Operation.MOD -> memory[r] = (memory[r] ?:0) % read(c.operand!!)
-            Operation.SEND -> {
-                lastFrequencyHeard = read(r)
-                outboundQueue?.push(lastFrequencyHeard)
-            }
+            Operation.SEND -> outbound.send(read(r)).also { sentMessages++ }
             Operation.JUMP -> {
                 val jump = read(c.operand!!).toInt()
                 if (jump != 0 && read(c.register) > 0) {
-                    pc += jump
+                    programCounter += jump
                     continue@loop
                 }
             }
             Operation.RECEIVE -> {
-                if (inboundQueue == null && read(r) != 0L) {
-                    break@loop
-                }
-                if (inboundQueue != null) {
-                    if (inboundQueue.isEmpty()) {
-                        Thread.sleep(5000)
-                        if (outboundQueue!!.isEmpty()) {
-                            break@loop
-                        }
-                    } else {
-                        memory[r] = inboundQueue.pop()
-                    }
+                try {
+                    memory[r] = withTimeout(100) { inbound.receive() }
+                } catch (e: TimeoutCancellationException) {
+                    break@loop // deadlock reached
                 }
             }
         }
-        pc += 1
+        programCounter += 1
     }
-    return lastFrequencyHeard
+    return sentMessages
 }
 
 fun main(args: Array<String>) {
-    val commands = File("./input/day18.txt").readLines().map { toCommand(it) }
+    val commands = File("input/day18.txt").readLines().map { toCommand(it) }
 
-    //val part1 = VM(commands, hashMapOf(), null, null)
-    //assertEquals(part1, 2951)
+    runBlocking {
+        val queue1 = Channel<Long>(UNLIMITED) // infinite buffered channels
+        val queue2 = Channel<Long>(UNLIMITED)
+        async { VM(0L, commands, queue1, queue2) }
+        val vm1 = async { VM(1L, commands, queue2, queue1) }
 
-    val queue1 = ArrayDeque<Long>()
-    val queue2 = ArrayDeque<Long>()
-
-    val memory1 = hashMapOf("p" to 0L)
-    val memory2 = hashMapOf("p" to 1L)
-
-    Thread {
-        VM(commands, memory1, queue1, queue2)
-    }.run()
-
-    Thread {
-        VM(commands, memory2, queue2, queue1)
-    }.run()
-
-    println(memory1)
-    println(memory2)
+        assertEquals(7366, vm1.await())
+    }
 }
 

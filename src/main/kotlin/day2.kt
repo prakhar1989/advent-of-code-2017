@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val numbers = File("./input/day2.txt")
+    val numbers = File("input/day2.txt")
             .readLines()
             .map { it.split("\t") .map { it.toInt() } }
 

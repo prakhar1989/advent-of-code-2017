@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day6.txt").readText()
+    val input = File("input/day6.txt").readText()
             .split("\t")
             .map{ it.toInt() }
             .toMutableList()

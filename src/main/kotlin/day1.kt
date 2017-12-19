@@ -4,7 +4,7 @@ import kotlin.test.assertEquals
 fun Char.toDigit() = this.minus('0')
 
 fun main(args: Array<String>) {
-    val input = File("./input/day1.txt").readText()
+    val input = File("input/day1.txt").readText()
 
     assertEquals(getSum(input), 1390) // part 1
     assertEquals(getSum(input, input.length/2), 1232) // part 2

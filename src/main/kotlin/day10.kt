@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day10.txt").readText()
+    val input = File("input/day10.txt").readText()
             .split(',').map { it.toInt() }
 
     assertEquals(knotHash(""), "a2582a3a0e66e6e86e3812dcb672a272")

@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day8.txt").readLines()
+    val input = File("input/day8.txt").readLines()
 
     val results = hashMapOf<String, Int>()
     var runningMax = 0

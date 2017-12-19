@@ -3,7 +3,7 @@ import kotlin.math.abs
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day11.txt").readText()
+    val input = File("input/day11.txt").readText()
     assertEquals(part1("ne,ne,sw,sw"), 0)
     assertEquals(part1("ne,ne,ne"), 3)
     assertEquals(part1("ne,ne,s,s"), 2)

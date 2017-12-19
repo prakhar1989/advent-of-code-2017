@@ -6,7 +6,7 @@ val xchangeRegex = Regex("x([0-9]+)/([0-9]+)")
 val partnerRegex = Regex("p([a-zA-Z]+)/([a-zA-Z]+)")
 
 fun main(args: Array<String>) {
-    val moves = File("./input/day16.txt").readText().split(',')
+    val moves = File("input/day16.txt").readText().split(',')
 
     fun swapProgram(program: MutableList<Char>, i: Int, j: Int) {
         val tmp = program[i]

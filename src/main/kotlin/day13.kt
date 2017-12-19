@@ -2,7 +2,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 fun main(args: Array<String>) {
-    val input = File("./input/day13.txt").readLines()
+    val input = File("input/day13.txt").readLines()
 
     val wall = hashMapOf<Int, Int>()
     input.forEach {
