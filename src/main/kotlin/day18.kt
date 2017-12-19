@@ -39,11 +39,11 @@ private suspend fun VM(
 ): Long {
     val memory = hashMapOf("p" to id)
 
-    fun read(o: String): Long {
+    fun read(o: String?): Long {
         return try {
-            o.toLong()
+            o?.toLong() ?: 0
         } catch (e: NumberFormatException) {
-            memory[o] ?: 0
+            memory.getOrDefault(o, 0)
         }
     }
 
@@ -54,13 +54,13 @@ private suspend fun VM(
         val c = commands[programCounter]
         val r = c.register
         when (c.op) {
-            Operation.SET -> memory[r] = read(c.operand!!)
-            Operation.ADD -> memory[r] = (memory[r] ?:0) + read(c.operand!!)
-            Operation.MUL -> memory[r] = (memory[r] ?:0) * read(c.operand!!)
-            Operation.MOD -> memory[r] = (memory[r] ?:0) % read(c.operand!!)
+            Operation.SET -> memory[r] = read(c.operand)
+            Operation.ADD -> memory[r] = memory.getOrDefault(r, 0) + read(c.operand)
+            Operation.MUL -> memory[r] = memory.getOrDefault(r, 0) * read(c.operand)
+            Operation.MOD -> memory[r] = memory.getOrDefault(r, 0) % read(c.operand)
             Operation.SEND -> outbound.send(read(r)).also { sentMessages++ }
             Operation.JUMP -> {
-                val jump = read(c.operand!!).toInt()
+                val jump = read(c.operand).toInt()
                 if (jump != 0 && read(c.register) > 0) {
                     programCounter += jump
                     continue@loop
@@ -74,7 +74,7 @@ private suspend fun VM(
                 }
             }
         }
-        programCounter += 1
+        programCounter++
     }
     return sentMessages
 }
@@ -91,4 +91,3 @@ fun main(args: Array<String>) {
         assertEquals(7366, vm1.await())
     }
 }
-
