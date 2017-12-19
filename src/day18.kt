@@ -1,7 +1,8 @@
 import java.io.File
-import kotlin.test.assertEquals
+import java.util.*
+import kotlin.collections.HashMap
 
-enum class Operation { SET, ADD, MUL, MOD, SOUND, RECOVER, JUMP }
+enum class Operation { SET, ADD, MUL, MOD, SEND, RECEIVE, JUMP }
 
 data class Command(val register: String, val op: Operation, val operand: String?)
 
@@ -12,60 +13,95 @@ private fun toCommand(s: String): Command {
         "add" -> Operation.ADD
         "mul" -> Operation.MUL
         "mod" -> Operation.MOD
-        "snd" -> Operation.SOUND
-        "rcv" -> Operation.RECOVER
+        "snd" -> Operation.SEND
+        "rcv" -> Operation.RECEIVE
         "jgz" -> Operation.JUMP
         else -> throw IllegalArgumentException()
     }
     val register = parts[1]
     return when (op) {
-        Operation.SOUND, Operation.RECOVER -> Command(register, op, null)
+        Operation.SEND, Operation.RECEIVE -> Command(register, op, null)
         else -> Command(register, op, parts[2])
     }
 }
 
-private fun read(o: String, lookupTable: HashMap<String, Long>): Long {
-    return try {
-        o.toLong()
-    } catch (e: NumberFormatException) {
-        lookupTable[o] ?: 0
+private fun VM(
+        commands: List<Command>,
+        memory: HashMap<String, Long>,
+        inboundQueue: ArrayDeque<Long>?,
+        outboundQueue: ArrayDeque<Long>?
+): Long {
+    fun read(o: String): Long {
+        return try {
+            o.toLong()
+        } catch (e: NumberFormatException) {
+            memory[o] ?: 0
+        }
     }
+
+    var lastFrequencyHeard = 0L
+    var pc = 0
+    loop@ while (pc < commands.size && pc >= 0) {
+        val c = commands[pc]
+        val r = c.register
+        when (c.op) {
+            Operation.SET -> memory[r] = read(c.operand!!)
+            Operation.ADD -> memory[r] = (memory[r] ?:0) + read(c.operand!!)
+            Operation.MUL -> memory[r] = (memory[r] ?:0) * read(c.operand!!)
+            Operation.MOD -> memory[r] = (memory[r] ?:0) % read(c.operand!!)
+            Operation.SEND -> {
+                lastFrequencyHeard = read(r)
+                outboundQueue?.push(lastFrequencyHeard)
+            }
+            Operation.JUMP -> {
+                val jump = read(c.operand!!).toInt()
+                if (jump != 0 && read(c.register) > 0) {
+                    pc += jump
+                    continue@loop
+                }
+            }
+            Operation.RECEIVE -> {
+                if (inboundQueue == null && read(r) != 0L) {
+                    break@loop
+                }
+                if (inboundQueue != null) {
+                    if (inboundQueue.isEmpty()) {
+                        Thread.sleep(5000)
+                        if (outboundQueue!!.isEmpty()) {
+                            break@loop
+                        }
+                    } else {
+                        memory[r] = inboundQueue.pop()
+                    }
+                }
+            }
+        }
+        pc += 1
+    }
+    return lastFrequencyHeard
 }
 
 fun main(args: Array<String>) {
     val commands = File("./input/day18.txt").readLines().map { toCommand(it) }
-    val registers = hashMapOf<String, Long>()
-    var lastFrequencyHeard = 0L
 
-    fun evalAtIndex(i: Int, lookupTable: HashMap<String, Long>): Int? {
-        val c = commands[i]
-        val r = c.register
-        when (c.op) {
-            Operation.SET -> registers[r] = read(c.operand!!, lookupTable)
-            Operation.ADD -> registers[r] = (registers[r] ?:0) + read(c.operand!!, lookupTable)
-            Operation.MUL -> registers[r] = (registers[r] ?:0) * read(c.operand!!, lookupTable)
-            Operation.MOD -> registers[r] = (registers[r] ?:0) % read(c.operand!!, lookupTable)
-            Operation.SOUND -> lastFrequencyHeard = read(r, lookupTable)
-            Operation.JUMP -> {
-                val jump = read(c.operand!!, lookupTable).toInt()
-                if (jump != 0 && read(c.register, lookupTable) > 0) {
-                    return i + jump
-                }
-            }
-            Operation.RECOVER -> {
-                if (read(c.register, lookupTable) != 0L) {
-                    return -1
-                }
-            }
-        }
-        return null
-    }
+    //val part1 = VM(commands, hashMapOf(), null, null)
+    //assertEquals(part1, 2951)
 
-    var pc = 0
-    while (pc < commands.size && pc >= 0) {
-        val jump = evalAtIndex(pc, registers)
-        pc = jump ?: pc + 1
-    }
+    val queue1 = ArrayDeque<Long>()
+    val queue2 = ArrayDeque<Long>()
 
-    assertEquals(lastFrequencyHeard, 2951) // part 1
+    val memory1 = hashMapOf("p" to 0L)
+    val memory2 = hashMapOf("p" to 1L)
+
+    Thread {
+        VM(commands, memory1, queue1, queue2)
+    }.run()
+
+    Thread {
+        VM(commands, memory2, queue2, queue1)
+    }.run()
+
+    println(memory1)
+    println(memory2)
 }
+
