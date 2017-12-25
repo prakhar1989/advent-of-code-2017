@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 
 enum class Operation { SET, ADD, MUL, MOD, SEND, RECEIVE, JUMP }
 
-data class Command(val register: String, val op: Operation, val operand: String?)
+private data class Command(val register: String, val op: Operation, val operand: String?)
 
 private fun toCommand(s: String): Command {
     val parts = s.split(" ")
