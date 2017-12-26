@@ -1,40 +1,45 @@
 import java.io.File
 import kotlin.test.assertEquals
 
-fun main(args: Array<String>) {
-    val directions = listOf(Pair(1, 0), Pair(-1, 0), Pair(0, -1), Pair(0, 1))
+private enum class Dir {UP, DOWN, LEFT, RIGHT}
 
-    var dx = 1
-    var dy = 0
-    var x = 0
-    var y = 0
+private data class Point(val x: Int, val y: Int) {
+    fun add(p: Point) = Point(x + p.x, y + p.y)
+    fun liesWithin(input: List<String>): Boolean =
+            x >= 0 && y >= 0 && x < input.size && y < input[x].length
+}
+
+private fun moveInDir(dir: Dir, p: Point): Point {
+    return p.add(when (dir) {
+        Dir.RIGHT -> Point(1, 0)
+        Dir.LEFT -> Point(-1, 0)
+        Dir.DOWN -> Point(0, 1)
+        Dir.UP -> Point(0, -1)
+    })
+}
+
+fun main(args: Array<String>) {
     var stepsTaken = 0
     var seen = mutableListOf<Char>()
 
     val input = File("input/day19.txt").readLines()
-    y = input[0].indexOf('|')
+    var currPoint = Point(0, input[0].indexOf('|'))
+    var currDir = Dir.RIGHT
 
     fun turn() {
-        val newDirection = directions.find {
-            if (it == Pair(-dx, -dy)) {
-                false
-            } else {
-                val newX = x + it.first
-                val newY = y + it.second
-                if (newX < 0 || newY < 0 || newX >= input.size || newY >= input[x].length) {
-                    false
-                } else {
-                    input[newX][newY] != ' '
-                }
-            }
-        } ?: throw IllegalStateException()
+        val possibleDirections = when (currDir) {
+            Dir.UP, Dir.DOWN -> listOf(Dir.RIGHT, Dir.LEFT)
+            else -> listOf(Dir.UP, Dir.DOWN)
+        }
 
-        dx = newDirection.first
-        dy = newDirection.second
+        currDir = possibleDirections.first {
+            val p = moveInDir(it, currPoint)
+            p.liesWithin(input) && input[p.x][p.y] != ' '
+        }
     }
 
     loop@ while (true) {
-        val cursor = input[x][y]
+        val cursor = input[currPoint.x][currPoint.y]
         when (cursor) {
             in 'A'..'Z' -> seen.add(cursor)
             '+' -> turn()
@@ -42,8 +47,7 @@ fun main(args: Array<String>) {
             else -> { /* no op */}
         }
         stepsTaken++
-        x += dx
-        y += dy
+        currPoint = moveInDir(currDir, currPoint)
     }
 
     assertEquals("EPYDUXANIT", seen.joinToString(""))
