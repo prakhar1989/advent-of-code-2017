@@ -1,5 +1,6 @@
 import java.io.File
 import kotlin.math.abs
+import kotlin.test.assertEquals
 
 private data class Triple(val a: Int, val b: Int, val c: Int) {
     fun add(t: Triple) = Triple(t.a + a, t.b + b, t.c + c)
@@ -31,23 +32,23 @@ fun main(args: Array<String>) {
     val particles = File("input/day20.txt").readLines()
             .map { toParticle(it) }.toMutableList()
 
-    fun collide(): Set<Particle> {
-        val collided = hashSetOf<Particle>()
-        for (p in particles) {
-            particles
-                .filter { p != it && p.pos == it.pos }
-                .forEach { collided.addAll(listOf(p, it)) }
-        }
-        return collided
-    }
+    //assertEquals(258, part1(particles))
+    assertEquals(707, part2(particles))
+}
 
-    // 1000 is good enough for 'long term'
-    for (i in 1..1000) {
+private fun part1(particles: List<Particle>, times: Int = 1000): Int {
+    repeat(times) {
         particles.forEach { it.tick() }
-        collide().forEach { particles.remove(it) }
     }
+    return particles.indices.minBy { particles[it].dist() } ?: 0
+}
 
-    //val closest = particles.indices.minBy { particles[it].dist() }
-    //println(closest)  // part 1
-    println(particles.size) // part 2
+private fun part2(ps: List<Particle>, times: Int = 100): Int {
+    val particles = ps.toMutableList()
+    repeat(times) {
+        particles.forEach { it.tick() }
+        val collisions = particles.groupBy { it.pos }.values.filter { it.size > 1 }.flatten()
+        particles.removeAll(collisions)
+    }
+    return particles.size
 }
