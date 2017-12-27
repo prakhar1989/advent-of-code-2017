@@ -7,14 +7,15 @@ private data class Point(val x: Int, val y: Int) {
     fun add(p: Point) = Point(x + p.x, y + p.y)
     fun liesWithin(input: List<String>): Boolean =
             x >= 0 && y >= 0 && x < input.size && y < input[x].length
+    fun valueIn(input: List<String>) = input[x][y]
 }
 
 private fun moveInDir(dir: Dir, p: Point): Point {
     return p.add(when (dir) {
-        Dir.RIGHT -> Point(1, 0)
-        Dir.LEFT -> Point(-1, 0)
-        Dir.DOWN -> Point(0, 1)
-        Dir.UP -> Point(0, -1)
+        Dir.DOWN -> Point(1, 0)
+        Dir.UP -> Point(-1, 0)
+        Dir.RIGHT -> Point(0, 1)
+        Dir.LEFT -> Point(0, -1)
     })
 }
 
@@ -24,7 +25,7 @@ fun main(args: Array<String>) {
 
     val input = File("input/day19.txt").readLines()
     var currPoint = Point(0, input[0].indexOf('|'))
-    var currDir = Dir.RIGHT
+    var currDir = Dir.DOWN
 
     fun turn() {
         val possibleDirections = when (currDir) {
@@ -34,12 +35,12 @@ fun main(args: Array<String>) {
 
         currDir = possibleDirections.first {
             val p = moveInDir(it, currPoint)
-            p.liesWithin(input) && input[p.x][p.y] != ' '
+            p.liesWithin(input) && p.valueIn(input) != ' '
         }
     }
 
     loop@ while (true) {
-        val cursor = input[currPoint.x][currPoint.y]
+        val cursor = currPoint.valueIn(input)
         when (cursor) {
             in 'A'..'Z' -> seen.add(cursor)
             '+' -> turn()
@@ -53,4 +54,3 @@ fun main(args: Array<String>) {
     assertEquals("EPYDUXANIT", seen.joinToString(""))
     assertEquals(17544, stepsTaken)
 }
-

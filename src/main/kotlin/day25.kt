@@ -1,5 +1,7 @@
+import kotlin.test.assertEquals
+
 private enum class Direction { LEFT, RIGHT }
-private typealias State = Char
+private enum class State {A, B, C, D, E, F}
 
 private data class Rule(
     val value: Int,
@@ -8,36 +10,22 @@ private data class Rule(
 )
 
 fun main(args: Array<String>) {
-//    val rules = hashMapOf<State, Pair<Rule, Rule>>(
-//            'A' to Pair(Rule(1, Direction.RIGHT, 'B'),
-//                    Rule(0, Direction.RIGHT, 'F')),
-//            'B' to Pair(Rule(0, Direction.LEFT, 'B'),
-//                    Rule(1, Direction.LEFT, 'C')),
-//            'C' to Pair(Rule(1, Direction.LEFT, 'D'),
-//                    Rule(0, Direction.RIGHT, 'C')),
-//            'D' to Pair(Rule(1, Direction.LEFT, 'E'),
-//                    Rule(1, Direction.RIGHT, 'A')),
-//            'E' to Pair(Rule(1, Direction.LEFT, 'F'),
-//                    Rule(0, Direction.LEFT, 'D')),
-//            'F' to Pair(Rule(1, Direction.RIGHT, 'A'),
-//                    Rule(0, Direction.LEFT, 'E')))
-
     val rules = hashMapOf<State, Pair<Rule, Rule>>(
-            'A' to Pair(Rule(1, Direction.RIGHT, 'B'),
-                    Rule(0, Direction.LEFT, 'B')),
-            'B' to Pair(Rule(0, Direction.RIGHT, 'C'),
-                    Rule(1, Direction.LEFT, 'B')),
-            'C' to Pair(Rule(1, Direction.RIGHT, 'D'),
-                    Rule(0, Direction.LEFT, 'A')),
-            'D' to Pair(Rule(1, Direction.LEFT, 'E'),
-                    Rule(1, Direction.LEFT, 'F')),
-            'E' to Pair(Rule(1, Direction.LEFT, 'A'),
-                    Rule(0, Direction.LEFT, 'D')),
-            'F' to Pair(Rule(1, Direction.RIGHT, 'A'),
-                    Rule(1, Direction.LEFT, 'E')))
+            State.A to Pair(Rule(1, Direction.RIGHT, State.B),
+                    Rule(0, Direction.LEFT, State.B)),
+            State.B to Pair(Rule(0, Direction.RIGHT, State.C),
+                    Rule(1, Direction.LEFT, State.B)),
+            State.C to Pair(Rule(1, Direction.RIGHT, State.D),
+                    Rule(0, Direction.LEFT, State.A)),
+            State.D to Pair(Rule(1, Direction.LEFT, State.E),
+                    Rule(1, Direction.LEFT, State.F)),
+            State.E to Pair(Rule(1, Direction.LEFT, State.A),
+                    Rule(0, Direction.LEFT, State.D)),
+            State.F to Pair(Rule(1, Direction.RIGHT, State.A),
+                    Rule(1, Direction.LEFT, State.E)))
 
     val memory = mutableListOf(0)
-    var currState: State = 'A'
+    var currState: State = State.A
     var currPosition = 0
     for (i in 1..12629077) {
         val rules = rules[currState]!!
@@ -55,5 +43,5 @@ fun main(args: Array<String>) {
         }
         currState = rule.nextState
     }
-    println(memory.sum())
+    assertEquals(3745, memory.sum())
 }
