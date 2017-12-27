@@ -3,7 +3,6 @@ import kotlin.math.abs
 
 private data class Triple(val a: Int, val b: Int, val c: Int) {
     fun add(t: Triple) = Triple(t.a + a, t.b + b, t.c + c)
-    fun toList() = listOf(a, b, c)
 }
 private class Particle(var pos: Triple, var velocity: Triple, val accel: Triple) {
     fun tick() {
@@ -30,28 +29,25 @@ private fun toParticle(s: String): Particle {
 
 fun main(args: Array<String>) {
     val particles = File("input/day20.txt").readLines()
-            .map { toParticle(it) }
+            .map { toParticle(it) }.toMutableList()
 
-    val collided = hashSetOf<Particle>()
-
-    fun collide() {
+    fun collide(): Set<Particle> {
+        val collided = hashSetOf<Particle>()
         for (p in particles) {
-            for (q in particles) {
-                if (p != q && p.pos == q.pos) {
-                    collided.add(p)
-                    collided.add(q)
-                }
-            }
+            particles
+                .filter { p != it && p.pos == it.pos }
+                .forEach { collided.addAll(listOf(p, it)) }
         }
+        return collided
     }
 
+    // 1000 is good enough for 'long term'
     for (i in 1..1000) {
         particles.forEach { it.tick() }
-        collide()
+        collide().forEach { particles.remove(it) }
     }
 
-    // part 1
     //val closest = particles.indices.minBy { particles[it].dist() }
-    //println(closest)
-    println(particles.size - collided.size)
+    //println(closest)  // part 1
+    println(particles.size) // part 2
 }
